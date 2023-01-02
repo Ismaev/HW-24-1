@@ -4,6 +4,7 @@ from aiogram import types, Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import bot, dp, ADMINS
 from keyboards.client_kb import start_markup, game_button
+from parser.anime import parser
 
 
 @dp.message_handler(commands=['pin'], commands_prefix='!/')
@@ -59,10 +60,21 @@ async  def game_message(message: types.Message):
     else:
         await bot.send_message(message.chat.id, 'У тебя не достаточно прав!')
 
-
+async def get_anime(message: types.Message):
+    anime = parser()
+    for i in anime:
+        await message.answer(
+            f"{i['link']}\n\n"
+            f"{i['title']}\n"
+            f"{i['date']}\n"
+            f"#Y{i['type']}\n"
+            f"#{i['genre']}\n"
+            f"#{i['series']}\n"
+        )
 def register_handlers_client(dp: Dispatcher):
     dp.register_message_handler(start_handler, commands=['start'])
     dp.register_message_handler(quiz_1, commands=['quiz'])
     dp.register_message_handler(mem_handler, commands=['mem'])
     dp.register_message_handler(pin_message, commands=['pin'], commands_prefix='!/')
     dp.register_message_handler(game_message, commands=['game'])
+    dp.register_message_handler(get_anime, commands=['anime'])
