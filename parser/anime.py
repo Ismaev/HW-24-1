@@ -3,18 +3,22 @@ from pprint import pprint
 import requests
 from bs4 import BeautifulSoup
 
-URL = "https://animevost.org/zhanr/romantika/"
+class ParserAnime:
+    URL = "https://animevost.org/zhanr/romantika/"
+    HEADERS = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    }
 
-HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-}
-
-
-def get_html(url):
-    req = requests.get(url=url, headers=HEADERS)
+@classmethod
+def get_html(cls, url=None):
+    if url is not None:
+        req = requests.get(url=url, headers=cls.__HEADERS)
+    else:
+        req = requests.get(url=cls.__URL, headers=cls.__HEADERS)
     return req
 
+@staticmethod
 def get_data(html):
     soup = BeautifulSoup(html, 'html.parser')
     items = soup.find_all('div', class_="shortstory")
@@ -32,14 +36,14 @@ def get_data(html):
         anime.append(card)
     return anime
 
-
-def parser():
-    html = get_html(URL)
+@classmethod
+def parser(cls):
+    html = cls.__get_html()
     if html.status_code == 200:
         anime = []
         for i in range(1, 2):
-            html = get_html(f"{URL}page/{i}/")
-            current_page = get_data(html.text)
+            html = cls.__get_html(f"{cls.__URL}page/{i}/")
+            current_page = cls.__get_data(html.text)
             anime.extend(current_page)
         return anime
     else:
